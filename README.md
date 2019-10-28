@@ -24,8 +24,23 @@ class BraintreePaymentGatewayTestCase(TestCase):
 
   def assertBraintreeResponseFailure(self, resp, msg=None):
     self.assertEquals(resp['status'], "FAILURE")
-    
-    
+  
+  def assertCardSupported(self):
+    self.credict_card.number = "0000"
+    self.assertRaises(CardNotSupported,
+        lambda: self.merchant.purchase(1000, self.credit_card))
+  
+  
+  
+  def testRecurring3(self):
+    options = {
+      "": {},
+      "": {},
+    }
+    resp = self.merchant.recurring(20, self.credit_card, option=options)
+    self.assertBraintreeResponseSuccess(resp)
+    subscription = resp["response"].subscription
+    self.assertEqual(subscription.number_of_billing_cycles, 12)
 ```
 
 ```
